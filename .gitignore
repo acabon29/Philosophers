@@ -1,0 +1,6 @@
+*.o
+philo/philo
+.vscode/
+.gdb_history
+*.a
+objs
