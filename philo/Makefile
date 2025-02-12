@@ -1,6 +1,7 @@
 ###############    variables    ###############
 
-CFLAGS = -Wall -Wextra -Werror -g -I./includes 
+CFLAGS = -Wall -Wextra -Werror -g -fsanitize=thread
+#  -fsanitize=thread
 # LDFLAGS = -L/usr/lib/x86_64-linux-gnu -lreadline -lncurses
 
 
@@ -11,7 +12,9 @@ NAME ?= philo
 
 ###############    Files    ###############
 
-SRC_GENERAL =	main 
+SRC_GENERAL =	main \
+				utils \
+				routines
 
 
 SRC	= $(addprefix $(SRC_DIR)/, $(addsuffix .c,	$(SRC_GENERAL) \
@@ -23,7 +26,7 @@ OBJS	:= $(patsubst $(SRC_DIR)/%.c, $(OBJS_DIR)/%.o, $(SRC))
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS)-o $(OUTPUT_DIR)/$(NAME) $(OBJS)
+	$(CC) $(CFLAGS) -o $(OUTPUT_DIR)/$(NAME) $(OBJS) -I./includes 
 #  $(LDFLAGS) 
 
 $(OBJS_DIR)/%.o: $(SRC_DIR)/%.c
