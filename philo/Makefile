@@ -15,8 +15,8 @@ NAME ?= philo
 SRC_GENERAL =	main \
 				utils \
 				routines \
-				philo
-
+				philo \
+				utils_routines
 
 SRC	= $(addprefix $(SRC_DIR)/, $(addsuffix .c,	$(SRC_GENERAL) \
 ))

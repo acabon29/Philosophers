@@ -6,7 +6,7 @@
 /*   By: acabon <acabon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 18:54:38 by acabon            #+#    #+#             */
-/*   Updated: 2025/02/13 18:56:28 by acabon           ###   ########.fr       */
+/*   Updated: 2025/02/13 20:02:21 by acabon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,45 +55,51 @@ void	add_back_philo(t_philo **lst, t_philo *new_philo)
 	}
 }
 
-int philo_creation(t_global *global)
+int	create_thread(t_global global, t_philo *current_philo,
+	t_philo *other_philo, int nb)
 {
-	int i;
-	t_philo *current_philo;
+	current_philo->fork_right = &(other_philo->fork_left);
+	if (pthread_create(&(current_philo->id_thread),
+			NULL, philo_routine, current_philo) != 0)
+	{
+		free_philo(global, nb);
+		printf("Erreur lors de la création du thread %d\n", nb);
+		return (EXIT_FAILURE);
+	}
+	return (EXIT_SUCCESS);
+}
+
+int	philo_creation(t_global *global)
+{
+	t_philo	*current_philo;
 	t_philo	*pre_philo;
+	int		i;
 
 	i = 0;
 	global->philos = NULL;
 	while (i < global->nb_philos)
 	{
 		current_philo = new_philo(global, i);
-		if(current_philo == NULL)
+		if (current_philo == NULL)
+		{
+			free_philo(*global, i);
 			return (EXIT_FAILURE);
+		}
 		add_back_philo(&(global->philos), current_philo);
 		if (i != 0)
-		{
-			pre_philo->fork_right = &(current_philo->fork_left);
-			if (pthread_create(&(pre_philo->id_thread), NULL, philo_routine, pre_philo) != 0)
-			{
-				printf("Erreur lors de la création du thread %d\n", i + 1);
+			if (test (*global, pre_philo, current_philo, i + 1))
 				return (EXIT_FAILURE);
-			}
-		}
 		pre_philo = current_philo;
 		i++;
-    }
-	current_philo->next = global->philos;
-	current_philo->fork_right = &(global->philos->fork_left);
-	if (pthread_create(&(current_philo->id_thread), NULL, philo_routine, current_philo) != 0)
-	{
-		printf("Erreur lors de la création du thread %d\n", i + 1);
-		return (EXIT_FAILURE);
 	}
-	
+	current_philo->next = global->philos;
+	if (test (*global, current_philo, global->philos, i + 1))
+		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }
 
 // printf("philo %d has eaten %d\n", current->nb, current->nb_eated);
-void free_philo(t_global global)
+void	free_philo(t_global global, int nb_philo)
 {
 	t_philo	*current;
 	t_philo	*prev;
@@ -101,7 +107,7 @@ void free_philo(t_global global)
 
 	i = 0;
 	current = global.philos;
-	while (i < global.nb_philos)
+	while (i < nb_philo)
 	{
 		prev = current;
 		current = current->next;

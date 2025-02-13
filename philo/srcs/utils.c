@@ -6,25 +6,21 @@
 /*   By: acabon <acabon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 14:38:26 by acabon            #+#    #+#             */
-/*   Updated: 2025/02/13 15:26:58 by acabon           ###   ########.fr       */
+/*   Updated: 2025/02/13 19:37:55 by acabon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-int	ft_isdigit(int c)
+int	ft_isdigit(char *str)
 {
-	return (c >= '0' && c <= '9');
-}
-
-int	is_space(int c)
-{
-	return ((c >= 9 && c <= 13) || c == ' ');
-}
-
-int	is_num(int c)
-{
-	return (c >= '0' && c <= '9');
+	while (*str)
+	{
+		if (*str < '0' || *str > '9')
+			return (EXIT_FAILURE);
+		str++;
+	}
+	return (EXIT_SUCCESS);
 }
 
 int	ft_atoi(const char *str)
@@ -34,7 +30,7 @@ int	ft_atoi(const char *str)
 
 	nb = 0;
 	signe = 1;
-	while (*str && is_space(*str))
+	while (*str && ((*str >= 9 && *str <= 13) || *str == ' '))
 		str++;
 	if (*str == '-' || *str == '+')
 	{
@@ -42,7 +38,7 @@ int	ft_atoi(const char *str)
 			signe = -signe;
 		str++;
 	}
-	while (is_num(*str))
+	while ((*str >= '0' && *str <= '9'))
 	{
 		nb = nb * 10 + (*str - '0');
 		str++;
@@ -50,22 +46,21 @@ int	ft_atoi(const char *str)
 	return (nb * signe);
 }
 
-unsigned long long get_time(void)
+unsigned long long	get_time(void)
 {
-	unsigned long long res;
-	struct timeval time;
+	unsigned long long	res;
+	struct timeval		time;
 
 	gettimeofday(&time, NULL);
 	res = (time.tv_sec * 1000 + (time.tv_usec / 1000));
 	return (res);
 }
 
-
-void print_lock(t_philo *philo, char *text)
+void	print_lock(t_philo *philo, char *text)
 {
-	unsigned long long time;
-	t_global	*global;
-	int	id_philo;
+	unsigned long long	time;
+	t_global			*global;
+	int					id_philo;
 
 	id_philo = philo->nb;
 	global = philo->global;
