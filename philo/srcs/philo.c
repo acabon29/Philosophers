@@ -6,7 +6,7 @@
 /*   By: acabon <acabon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 18:54:38 by acabon            #+#    #+#             */
-/*   Updated: 2025/02/13 20:02:21 by acabon           ###   ########.fr       */
+/*   Updated: 2025/02/13 20:06:43 by acabon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,13 +87,13 @@ int	philo_creation(t_global *global)
 		}
 		add_back_philo(&(global->philos), current_philo);
 		if (i != 0)
-			if (test (*global, pre_philo, current_philo, i + 1))
+			if (create_thread (*global, pre_philo, current_philo, i + 1))
 				return (EXIT_FAILURE);
 		pre_philo = current_philo;
 		i++;
 	}
 	current_philo->next = global->philos;
-	if (test (*global, current_philo, global->philos, i + 1))
+	if (create_thread (*global, current_philo, global->philos, i + 1))
 		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }

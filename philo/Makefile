@@ -1,6 +1,6 @@
 ###############    variables    ###############
 
-CFLAGS = -Wall -Wextra -Werror -g 
+CFLAGS = -Wall -Wextra -Werror -g
 #  -fsanitize=thread
 # LDFLAGS = -L/usr/lib/x86_64-linux-gnu -lreadline -lncurses
 
