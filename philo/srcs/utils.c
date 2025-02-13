@@ -6,7 +6,7 @@
 /*   By: acabon <acabon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 14:38:26 by acabon            #+#    #+#             */
-/*   Updated: 2025/02/12 18:24:36 by acabon           ###   ########.fr       */
+/*   Updated: 2025/02/13 15:26:58 by acabon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,6 @@ void print_lock(t_philo *philo, char *text)
 	global = philo->global;
 	pthread_mutex_lock(&(global->str_out));
 	time = get_time() - global->start;
-	printf("%llu %d %s\n", time, id_philo, text); // Ajouter le temps
-	// printf("test %d is sleeping\n", id_philo); // Ajouter le temps
+	printf("%llu %d %s\n", time, id_philo, text);
 	pthread_mutex_unlock(&(global->str_out));
 }

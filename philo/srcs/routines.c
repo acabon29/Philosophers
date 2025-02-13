@@ -6,155 +6,142 @@
 /*   By: acabon <acabon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:33:53 by acabon            #+#    #+#             */
-/*   Updated: 2025/02/12 18:34:46 by acabon           ###   ########.fr       */
+/*   Updated: 2025/02/13 19:11:58 by acabon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-void philo_take_forks(t_philo *philo)
+int someone_dead(t_global *global)
 {
-	int	id_philo;
-	t_global	*global;
-	// unsigned long long time;
-	// int nb_philos;
+	if (global->someone_dead == true)
+		return (EXIT_FAILURE);
+	return (EXIT_SUCCESS);
+}
 
-	id_philo = philo->nb;
-	global = philo->global;
+int check_dead(t_philo *philo)
+{
+	pthread_mutex_lock(&(philo->global->av_dead_bool));
+	if (someone_dead(philo->global))
+	{
+		pthread_mutex_unlock(&(philo->global->av_dead_bool));
+		return (EXIT_FAILURE);
+	}
+	if ((philo->last_eat + philo->time_to_die) <= get_time())
+	{
+		print_lock(philo, "is dead");
+		philo->global->someone_dead = true;
+		pthread_mutex_unlock(&(philo->global->av_dead_bool));
+		return (EXIT_FAILURE);
+	}
+	pthread_mutex_unlock(&(philo->global->av_dead_bool));
+	return (EXIT_SUCCESS);
+}
 
-	// pthread_mutex_lock(&(global->available));
-	pthread_mutex_lock(&(global->forks[id_philo - 1]));
-	// pthread_mutex_unlock(&(global->available));
+int philo_take_forks(t_philo *philo)
+{
+	if (check_dead(philo))
+		return (EXIT_FAILURE);
 
-	// verrifier si la personne est morte
-	// pthread_mutex_lock(&(global->str_out));
-	// time = get_time() - global->start;
-	// printf("%llu %d has taken a fork\n", time, id_philo); // Ajouter le temps
-	// pthread_mutex_unlock(&(global->str_out));
+	pthread_mutex_lock(&(philo->fork_left));
+	if (check_dead(philo))
+	{
+		pthread_mutex_unlock(&(philo->fork_left));
+		return (EXIT_FAILURE);
+	}
 	print_lock(philo, "has taken a fork");
-
-
-	// pthread_mutex_lock(&(philo->fork_left));
-	
-	// pthread_mutex_lock(&(global->available));
-	pthread_mutex_lock(&(global->forks[(id_philo) % global->nb_philos]));
-	// pthread_mutex_unlock(&(global->available));
-	// verrifier si la personne est morte
-	// pthread_mutex_lock(&(global->str_out));
-	// time = get_time() - global->start;
-	// printf("%llu %d has taken a fork\n", time, id_philo); // Ajouter le temps
-	// pthread_mutex_unlock(&(global->str_out));
+	pthread_mutex_lock(philo->fork_right);
+	if (check_dead(philo))
+	{
+		pthread_mutex_unlock(&(philo->fork_left));
+		return (EXIT_FAILURE);
+	}
 	print_lock(philo, "has taken a fork");
+	return (EXIT_SUCCESS);
 
-
-	// pthread_mutex_lock(&(philo->fork_right));
 }
 
 
-void	philo_eating(t_philo *philo)
+int	philo_eating(t_philo *philo)
 {
-	t_global	*global;
-	int	id_philo;
-	// unsigned long long time;
+	int i;
 
-	// printf("test\n"); // Ajouter le temps
-
-	id_philo = philo->nb;
-	global = philo->global;
-	// pthread_mutex_lock(&(philo->fork_right));
-	// pthread_mutex_lock(&(philo->fork_left));
-
-	// pthread_mutex_lock(&(global->str_out));
-	// time = get_time() - global->start;
-	// printf("%llu %d is eating\n", time, id_philo); // Ajouter le temps
-	// pthread_mutex_unlock(&(global->str_out));
-
+	if (check_dead(philo))
+	{
+		pthread_mutex_unlock(&(philo->fork_left));
+		pthread_mutex_unlock(philo->fork_right);
+		return (EXIT_FAILURE);
+	}
 	print_lock(philo, "is eating");
-
-	usleep(global->time_to_eat * 1000);
-
-
-	// pthread_mutex_unlock(&(philo->fork_right));
-	// pthread_mutex_unlock(&(philo->fork_left));
-
-	// pthread_mutex_lock(&(global->available));
-	pthread_mutex_unlock(&(global->forks[id_philo - 1]));
-	pthread_mutex_unlock(&(global->forks[(id_philo) % global->nb_philos]));
-	// pthread_mutex_unlock(&(global->available));
-
-
-
-	// ajuster la derniere fois qu'il a mange
-	// philo->last_eat = 
+	i = 0;
+	while (i < 10)
+	{
+		usleep(philo->time_to_eat * 100);
+		if (check_dead(philo))
+		{
+			pthread_mutex_unlock(&(philo->fork_left));
+			pthread_mutex_unlock(philo->fork_right);
+			return (EXIT_FAILURE);
+		}
+		i++;
+	}
+	pthread_mutex_unlock(&(philo->fork_left));
+	pthread_mutex_unlock(philo->fork_right);
+	if (check_dead(philo))
+		return (EXIT_FAILURE);
+	philo->last_eat = get_time();
 	philo->nb_eated++; 
+	return (EXIT_SUCCESS);
 
 }
 
 
-void	philo_sleeping(t_philo *philo)
+int	philo_sleeping(t_philo *philo)
 {
-	// unsigned long long time;
-	// t_global	*global;
-	// int	id_philo;
-
-	// id_philo = philo->nb;
-	// global = philo->global;
-	// pthread_mutex_lock(&(global->str_out));
-	// time = get_time() - global->start;
-	// printf("%llu %d is sleeping\n", time, id_philo); // Ajouter le temps
+	if (check_dead(philo))
+		return (EXIT_FAILURE);
 	print_lock(philo, "is sleeping");
-	// printf("test %d is sleeping\n", id_philo); // Ajouter le temps
-	// pthread_mutex_unlock(&(global->str_out));
-	usleep(philo->global->time_to_sleep);
+	usleep(philo->time_to_sleep * 1000);
+	if (check_dead(philo))
+		return (EXIT_FAILURE);
+	return (EXIT_SUCCESS);
 }
 
-void philo_thinking(t_philo *philo)
+int philo_thinking(t_philo *philo)
 {
-	// t_global	*global;
-	// int	id_philo;
-	// // unsigned long long time;
-
-	// id_philo = philo->nb;
-	// global = philo->global;
-	// pthread_mutex_lock(&(global->str_out));
-	// time = get_time() - global->start;
-	// printf("%llu %d is thinking\n", time, id_philo); // Ajouter le temps
-	// pthread_mutex_unlock(&(global->str_out));
+	if (check_dead(philo))
+		return (EXIT_FAILURE);
 	print_lock(philo, "is thinking");
-
-	// usleep(100);
+	return (EXIT_SUCCESS);
 }
-
-
-
 
 void* philo_routine(void* arg)
 {
-	(void)arg;
 	t_philo	*philo;
 
 	philo = (t_philo*)arg;
-
-
-	// a supp :
-	// printf("philo_routine %lu\n", philo->id_thread);
-
-// 	initialiser ici le "last_eat"
-
-
+	philo->last_eat = get_time();
 	while (1)
 	{
 		if (philo->nb_eated == 0 && philo->nb % 2 == 0)
-			philo_thinking(philo);
-		philo_take_forks(philo);
-		philo_eating(philo);
-		philo_sleeping(philo);
-		philo_thinking(philo);
-		if (philo->nb_eated == philo->global->time_to_eat)
+		{
+			usleep(5000);
+			if (philo_thinking(philo))
+				return (NULL);
+		}
+		if (philo_take_forks(philo))
+				return (NULL);
+		if (philo_eating(philo))
+				return (NULL);
+		if (philo->nb_eated == philo->nb_times_must_eat)
 			break;
+		if (philo_sleeping(philo))
+				return (NULL);
+		if (philo_thinking(philo))
+				return (NULL);
 	}
-
-
     return(NULL);
 }
+
+
 

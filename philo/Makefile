@@ -1,6 +1,6 @@
 ###############    variables    ###############
 
-CFLAGS = -Wall -Wextra -Werror -g -fsanitize=thread
+CFLAGS = -Wall -Wextra -Werror -g 
 #  -fsanitize=thread
 # LDFLAGS = -L/usr/lib/x86_64-linux-gnu -lreadline -lncurses
 
@@ -14,7 +14,8 @@ NAME ?= philo
 
 SRC_GENERAL =	main \
 				utils \
-				routines
+				routines \
+				philo
 
 
 SRC	= $(addprefix $(SRC_DIR)/, $(addsuffix .c,	$(SRC_GENERAL) \

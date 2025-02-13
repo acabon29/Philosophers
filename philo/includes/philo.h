@@ -6,7 +6,7 @@
 /*   By: acabon <acabon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:02:11 by acabon            #+#    #+#             */
-/*   Updated: 2025/02/12 18:38:24 by acabon           ###   ########.fr       */
+/*   Updated: 2025/02/13 19:02:05 by acabon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,9 +51,18 @@ typedef struct s_philo
 	unsigned long long			last_eat;
 	int			nb_eated;
 	t_global	*global;
+
+	int			nb_philos;
+	int 		time_to_die;
+	int			time_to_eat;
+	int			time_to_sleep;
+	int			nb_times_must_eat;
 	// utile ?
 	// pthread_mutex_t		fork_left;
 	// pthread_mutex_t		fork_right;
+	pthread_mutex_t	fork_left;
+	pthread_mutex_t	*fork_right;
+	struct s_philo	*next;
 }	t_philo;
 
 // typedef struct s_fork
@@ -72,8 +81,7 @@ typedef struct s_global
 	bool		someone_dead;
 	unsigned long long	start;
 	t_philo		*philos;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	available;
+	// pthread_mutex_t	*forks;
 	pthread_mutex_t	av_dead_bool;
 	pthread_mutex_t	str_out;
 }	t_global;
@@ -114,12 +122,17 @@ void print_lock(t_philo *philo, char *text);
 
 
 
+// Philos :
+t_philo	*new_philo(t_global *global, int i);
+void	add_back_philo(t_philo **lst, t_philo *new_philo);
+int philo_creation(t_global *global);
+void free_philo(t_global global);
 
 // Routines :
-void philo_take_forks(t_philo *philo);
-void	philo_eating(t_philo *philo);
-void	philo_sleeping(t_philo *philo);
-void philo_thinking(t_philo *philo);
+int philo_take_forks(t_philo *philo);
+int	philo_eating(t_philo *philo);
+int	philo_sleeping(t_philo *philo);
+int philo_thinking(t_philo *philo);
 void* philo_routine(void* arg);
 
 
