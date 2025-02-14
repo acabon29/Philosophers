@@ -6,7 +6,7 @@
 /*   By: acabon <acabon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 16:58:12 by cbeaufil          #+#    #+#             */
-/*   Updated: 2025/02/13 20:02:30 by acabon           ###   ########.fr       */
+/*   Updated: 2025/02/14 19:09:40 by acabon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ t_global	init_data(int argc, char **argv)
 	pthread_mutex_init(&(global.str_out), NULL);
 	global.someone_dead = false;
 	pthread_mutex_init(&(global.av_dead_bool), NULL);
+	global.nb_finish = 0;
+	pthread_mutex_init(&(global.av_nb_finish), NULL);
 	global.start = get_time();
 	global.nb_philos = ft_atoi(argv[1]);
 	global.time_to_die = ft_atoi(argv[2]);
@@ -87,7 +89,9 @@ int	main(int argc, char **argv)
 		return (EXIT_SUCCESS);
 	if (global.nb_philos == 1)
 	{
-		printf("0 1 is dead\n");
+		printf("0 1 has taken a fork\n");
+		usleep(global.time_to_die * 1000);
+		printf("%d 1 is dead\n", global.time_to_die);
 		return (EXIT_SUCCESS);
 	}
 	if (philo_creation(&global))

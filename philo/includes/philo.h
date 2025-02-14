@@ -6,7 +6,7 @@
 /*   By: acabon <acabon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:02:11 by acabon            #+#    #+#             */
-/*   Updated: 2025/02/13 20:05:46 by acabon           ###   ########.fr       */
+/*   Updated: 2025/02/14 19:13:51 by acabon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,11 @@ typedef struct s_global
 	int					time_to_eat;
 	int					time_to_sleep;
 	int					nb_times_must_eat;
+	int					nb_finish;
 	bool				someone_dead;
 	unsigned long long	start;
 	t_philo				*philos;
+	pthread_mutex_t		av_nb_finish;
 	pthread_mutex_t		av_dead_bool;
 	pthread_mutex_t		str_out;
 }	t_global;
@@ -75,6 +77,8 @@ int					philo_thinking(t_philo *philo);
 void				*philo_routine(void *arg);
 
 // Utils_routines
+void				set_as_finish(t_philo *philo);
 int					check_dead(t_philo *philo);
+int					check_die_in_usleep(t_philo *philo, int time);
 
 #endif

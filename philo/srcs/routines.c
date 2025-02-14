@@ -6,7 +6,7 @@
 /*   By: acabon <acabon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:33:53 by acabon            #+#    #+#             */
-/*   Updated: 2025/02/13 19:29:00 by acabon           ###   ########.fr       */
+/*   Updated: 2025/02/14 19:16:23 by acabon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,30 +35,30 @@ int	philo_take_forks(t_philo *philo)
 
 int	philo_eating(t_philo *philo)
 {
-	int	i;
-
 	if (check_dead(philo))
 	{
 		pthread_mutex_unlock(&(philo->fork_left));
 		return (pthread_mutex_unlock(philo->fork_right), EXIT_FAILURE);
 	}
 	print_lock(philo, "is eating");
-	i = 0;
-	while (i < 10)
+	if (check_die_in_usleep(philo, philo->time_to_eat))
 	{
-		usleep(philo->time_to_eat * 100);
-		if (check_dead(philo))
-		{
-			pthread_mutex_unlock(&(philo->fork_left));
-			return (pthread_mutex_unlock(philo->fork_right), EXIT_FAILURE);
-		}
-		i++;
+		pthread_mutex_unlock(&(philo->fork_left));
+		pthread_mutex_unlock(philo->fork_right);
+		return (pthread_mutex_unlock(philo->fork_right), EXIT_FAILURE);
+	}
+	usleep(philo->time_to_eat * 1000);
+	philo->last_eat = get_time();
+	if (check_dead(philo))
+	{
+		pthread_mutex_unlock(&(philo->fork_left));
+		pthread_mutex_unlock(philo->fork_right);
+		return (pthread_mutex_unlock(philo->fork_right), EXIT_FAILURE);
 	}
 	pthread_mutex_unlock(&(philo->fork_left));
 	pthread_mutex_unlock(philo->fork_right);
 	if (check_dead(philo))
 		return (EXIT_FAILURE);
-	philo->last_eat = get_time();
 	return (philo->nb_eated++, EXIT_SUCCESS);
 }
 
@@ -67,6 +67,8 @@ int	philo_sleeping(t_philo *philo)
 	if (check_dead(philo))
 		return (EXIT_FAILURE);
 	print_lock(philo, "is sleeping");
+	if (check_die_in_usleep(philo, philo->time_to_sleep))
+		return (pthread_mutex_unlock(philo->fork_right), EXIT_FAILURE);
 	usleep(philo->time_to_sleep * 1000);
 	if (check_dead(philo))
 		return (EXIT_FAILURE);
@@ -91,7 +93,7 @@ void	*philo_routine(void *arg)
 	{
 		if (philo->nb_eated == 0 && philo->nb % 2 == 0)
 		{
-			usleep(5000);
+			usleep(100);
 			if (philo_thinking(philo))
 				return (NULL);
 		}
@@ -100,7 +102,7 @@ void	*philo_routine(void *arg)
 		if (philo_eating(philo))
 			return (NULL);
 		if (philo->nb_eated == philo->nb_times_must_eat)
-			break ;
+			set_as_finish(philo);
 		if (philo_sleeping(philo))
 			return (NULL);
 		if (philo_thinking(philo))
